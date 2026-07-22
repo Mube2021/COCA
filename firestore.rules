@@ -1,0 +1,156 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Validation functions
+    function isValidProduct(data) {
+      return data.keys().hasAll(['id', 'name', 'crateSize', 'bottleSize', 'unitPrice', 'stockBottles', 'category'])
+        && data.id is string && data.id.size() <= 128
+        && data.name is string && data.name.size() <= 100
+        && data.crateSize is number && data.crateSize > 0
+        && data.bottleSize is string && data.bottleSize.size() <= 50
+        && data.unitPrice is number && data.unitPrice >= 0
+        && data.stockBottles is number && data.stockBottles >= 0
+        && data.category is string && data.category.size() <= 50;
+    }
+
+    function isValidCustomer(data) {
+      return data.keys().hasAll(['id', 'name', 'businessType', 'town', 'phone', 'status'])
+        && data.id is string && data.id.size() <= 128
+        && data.name is string && data.name.size() <= 100
+        && data.businessType is string && data.businessType.size() <= 50
+        && data.town is string && data.town.size() <= 50
+        && data.phone is string && data.phone.size() <= 30
+        && data.status is string && data.status.size() <= 20;
+    }
+
+    function isValidSalesOrder(data) {
+      return data.keys().hasAll(['id', 'invoiceNo', 'customerName', 'grandTotal', 'paymentStatus'])
+        && data.id is string && data.id.size() <= 128
+        && data.invoiceNo is string && data.invoiceNo.size() <= 50
+        && data.customerName is string && data.customerName.size() <= 100
+        && data.grandTotal is number && data.grandTotal >= 0
+        && data.paymentStatus is string && data.paymentStatus.size() <= 20;
+    }
+
+    function isValidDeliveryRoute(data) {
+      return data.keys().hasAll(['id', 'routeCode', 'driverName', 'vehiclePlate', 'status'])
+        && data.id is string && data.id.size() <= 128
+        && data.routeCode is string && data.routeCode.size() <= 50
+        && data.driverName is string && data.driverName.size() <= 100
+        && data.vehiclePlate is string && data.vehiclePlate.size() <= 30
+        && data.status is string && data.status.size() <= 30;
+    }
+
+    function isValidBottleTransaction(data) {
+      return data.keys().hasAll(['id', 'customerName', 'bottleType', 'cratesIssued', 'cratesReturned'])
+        && data.id is string && data.id.size() <= 128
+        && data.customerName is string && data.customerName.size() <= 100
+        && data.bottleType is string && data.bottleType.size() <= 50
+        && data.cratesIssued is number && data.cratesIssued >= 0
+        && data.cratesReturned is number && data.cratesReturned >= 0;
+    }
+
+    function isValidFinancialRecord(data) {
+      return data.keys().hasAll(['id', 'type', 'amountETB', 'category', 'description', 'date'])
+        && data.id is string && data.id.size() <= 128
+        && data.type is string && (data.type == 'REVENUE' || data.type == 'EXPENSE')
+        && data.amountETB is number && data.amountETB >= 0
+        && data.category is string && data.category.size() <= 50
+        && data.description is string && data.description.size() <= 200
+        && data.date is string && data.date.size() <= 50;
+    }
+
+    function isValidEmployee(data) {
+      return data.keys().hasAll(['id', 'fullName', 'role', 'phone', 'department', 'monthlySalary', 'attendanceStatus'])
+        && data.id is string && data.id.size() <= 128
+        && data.fullName is string && data.fullName.size() <= 100
+        && data.role is string && data.role.size() <= 50
+        && data.phone is string && data.phone.size() <= 30
+        && data.department is string && data.department.size() <= 50
+        && data.monthlySalary is number && data.monthlySalary >= 0
+        && data.attendanceStatus is string && data.attendanceStatus.size() <= 20;
+    }
+
+    function isValidAuditLog(data) {
+      return data.keys().hasAll(['id', 'timestamp', 'user', 'action', 'details'])
+        && data.id is string && data.id.size() <= 128
+        && data.timestamp is string && data.timestamp.size() <= 50
+        && data.user is string && data.user.size() <= 100
+        && data.action is string && data.action.size() <= 50
+        && data.details is string && data.details.size() <= 200;
+    }
+
+    // Collection rules
+    match /products/{productId} {
+      allow read: if true;
+      allow create, update: if isSignedIn() && isValidId(productId) && isValidProduct(incoming());
+      allow delete: if isSignedIn() && isValidId(productId);
+    }
+
+    match /customers/{customerId} {
+      allow read: if true;
+      allow create, update: if isSignedIn() && isValidId(customerId) && isValidCustomer(incoming());
+      allow delete: if isSignedIn() && isValidId(customerId);
+    }
+
+    match /salesOrders/{orderId} {
+      allow read: if true;
+      allow create, update: if isSignedIn() && isValidId(orderId) && isValidSalesOrder(incoming());
+      allow delete: if isSignedIn() && isValidId(orderId);
+    }
+
+    match /deliveryRoutes/{routeId} {
+      allow read: if true;
+      allow create, update: if isSignedIn() && isValidId(routeId) && isValidDeliveryRoute(incoming());
+      allow delete: if isSignedIn() && isValidId(routeId);
+    }
+
+    match /bottleTransactions/{transactionId} {
+      allow read: if true;
+      allow create, update: if isSignedIn() && isValidId(transactionId) && isValidBottleTransaction(incoming());
+      allow delete: if isSignedIn() && isValidId(transactionId);
+    }
+
+    match /financialRecords/{recordId} {
+      allow read: if true;
+      allow create, update: if isSignedIn() && isValidId(recordId) && isValidFinancialRecord(incoming());
+      allow delete: if isSignedIn() && isValidId(recordId);
+    }
+
+    match /employees/{employeeId} {
+      allow read: if true;
+      allow create, update: if isSignedIn() && isValidId(employeeId) && isValidEmployee(incoming());
+      allow delete: if isSignedIn() && isValidId(employeeId);
+    }
+
+    match /auditLogs/{logId} {
+      allow read: if true;
+      allow create: if isSignedIn() && isValidId(logId) && isValidAuditLog(incoming());
+      allow update, delete: if false; // Immutable logs
+    }
+  }
+}

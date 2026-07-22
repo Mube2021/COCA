@@ -1,0 +1,165 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "Coca-Cola product item in distributor inventory",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string", "maxLength": 100 },
+        "crateSize": { "type": "number" },
+        "bottleSize": { "type": "string", "maxLength": 50 },
+        "unitPrice": { "type": "number" },
+        "stockBottles": { "type": "number" },
+        "minStockAlert": { "type": "number" },
+        "category": { "type": "string", "maxLength": 50 },
+        "isReturnableBottle": { "type": "boolean" }
+      },
+      "required": ["id", "name", "crateSize", "bottleSize", "unitPrice", "stockBottles", "category"]
+    },
+    "Customer": {
+      "title": "Customer",
+      "description": "Retailer, wholesaler, hotel or eatery customer record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string", "maxLength": 100 },
+        "businessType": { "type": "string", "maxLength": 50 },
+        "town": { "type": "string", "maxLength": 50 },
+        "phone": { "type": "string", "maxLength": 30 },
+        "creditLimitETB": { "type": "number" },
+        "currentBalanceETB": { "type": "number" },
+        "emptyBottlesOwed": { "type": "number" },
+        "status": { "type": "string", "maxLength": 20 }
+      },
+      "required": ["id", "name", "businessType", "town", "phone", "status"]
+    },
+    "SalesOrder": {
+      "title": "SalesOrder",
+      "description": "Invoice or sales order record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "invoiceNo": { "type": "string", "maxLength": 50 },
+        "customerId": { "type": "string", "maxLength": 100 },
+        "customerName": { "type": "string", "maxLength": 100 },
+        "grandTotal": { "type": "number" },
+        "paymentStatus": { "type": "string", "maxLength": 20 },
+        "paymentMethod": { "type": "string", "maxLength": 20 },
+        "date": { "type": "string", "maxLength": 50 },
+        "createdBy": { "type": "string", "maxLength": 100 }
+      },
+      "required": ["id", "invoiceNo", "customerName", "grandTotal", "paymentStatus"]
+    },
+    "DeliveryRoute": {
+      "title": "DeliveryRoute",
+      "description": "Vehicle dispatch route for bottle deliveries",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "routeCode": { "type": "string", "maxLength": 50 },
+        "driverName": { "type": "string", "maxLength": 100 },
+        "vehiclePlate": { "type": "string", "maxLength": 30 },
+        "totalBottlesToDeliver": { "type": "number" },
+        "status": { "type": "string", "maxLength": 30 },
+        "date": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "routeCode", "driverName", "vehiclePlate", "status"]
+    },
+    "BottleTransaction": {
+      "title": "BottleTransaction",
+      "description": "Returnable bottle crate deposit and return tracking log",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "customerId": { "type": "string", "maxLength": 100 },
+        "customerName": { "type": "string", "maxLength": 100 },
+        "bottleType": { "type": "string", "maxLength": 50 },
+        "cratesIssued": { "type": "number" },
+        "cratesReturned": { "type": "number" },
+        "cratesBroken": { "type": "number" },
+        "date": { "type": "string", "maxLength": 50 },
+        "recordedBy": { "type": "string", "maxLength": 100 }
+      },
+      "required": ["id", "customerName", "bottleType", "cratesIssued", "cratesReturned"]
+    },
+    "FinancialRecord": {
+      "title": "FinancialRecord",
+      "description": "Distributor financial ledger expense or revenue item",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string", "maxLength": 20 },
+        "amountETB": { "type": "number" },
+        "category": { "type": "string", "maxLength": 50 },
+        "description": { "type": "string", "maxLength": 200 },
+        "date": { "type": "string", "maxLength": 50 },
+        "recordedBy": { "type": "string", "maxLength": 100 }
+      },
+      "required": ["id", "type", "amountETB", "category", "description", "date"]
+    },
+    "Employee": {
+      "title": "Employee",
+      "description": "Distributor employee personnel record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "fullName": { "type": "string", "maxLength": 100 },
+        "role": { "type": "string", "maxLength": 50 },
+        "phone": { "type": "string", "maxLength": 30 },
+        "department": { "type": "string", "maxLength": 50 },
+        "monthlySalary": { "type": "number" },
+        "attendanceStatus": { "type": "string", "maxLength": 20 },
+        "deliveriesCompleted": { "type": "number" }
+      },
+      "required": ["id", "fullName", "role", "phone", "department", "monthlySalary", "attendanceStatus"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "System activity audit log entry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "timestamp": { "type": "string", "maxLength": 50 },
+        "user": { "type": "string", "maxLength": 100 },
+        "action": { "type": "string", "maxLength": 50 },
+        "details": { "type": "string", "maxLength": 200 }
+      },
+      "required": ["id", "timestamp", "user", "action", "details"]
+    }
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": "#/entities/Product",
+      "description": "Inventory products collection"
+    },
+    "/customers/{customerId}": {
+      "schema": "#/entities/Customer",
+      "description": "Customers CRM collection"
+    },
+    "/salesOrders/{orderId}": {
+      "schema": "#/entities/SalesOrder",
+      "description": "Sales orders and invoices collection"
+    },
+    "/deliveryRoutes/{routeId}": {
+      "schema": "#/entities/DeliveryRoute",
+      "description": "Delivery logistics routes collection"
+    },
+    "/bottleTransactions/{transactionId}": {
+      "schema": "#/entities/BottleTransaction",
+      "description": "Bottle crate returns tracking collection"
+    },
+    "/financialRecords/{recordId}": {
+      "schema": "#/entities/FinancialRecord",
+      "description": "Financial ledger transactions collection"
+    },
+    "/employees/{employeeId}": {
+      "schema": "#/entities/Employee",
+      "description": "Employee directory collection"
+    },
+    "/auditLogs/{logId}": {
+      "schema": "#/entities/AuditLog",
+      "description": "Audit trail log entries collection"
+    }
+  }
+}

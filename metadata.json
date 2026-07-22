@@ -1,0 +1,6 @@
+{
+  "name": "Mohammed Awel Coca Distributor",
+  "description": "Authorized Coca-Cola distributor management platform for Buno Bedele Zone, featuring inventory, bottle tracking, sales, delivery, customer credit, and financial management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
